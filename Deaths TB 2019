@@ -1,0 +1,408 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Project 1: Deaths by tuberculosis 2019\n",
+    "\n",
+    "by Yeison Maldonado y Carlos Caceres, 3 march 2021, based on Gonzalo Gomez Millan version of 22 November 2017\n",
+    "\n",
+    "This is the grupal project notebook for partial work of the course Artificial Intelligence of the Universidad Central del Valle.\n",
+    "\n",
+    "In 2000, the United Nations seIn 2000, the United Nations established eight Millennium Development Goals (MDGs): (1) eradicate extreme poverty and hunger; (2) achieve universal primary education; (3) promote gender equality and empower women; (4) reduce child mortality; (5) improve maternal health; (6) combat HIV/AIDS, malaria and other diseases; (7) ensure environmental sustainability; and (8) develop a global partnership for development. Each goal is quantified and has a deadline, to be achieved by the end of 2015. Goal 6 is to have halted and begun to reverse the spread of HIV, malaria and tuberculosis (TB).\n",
+    "TB does not make headlines like Ebola, SARS (severe acute respiratory syndrome) and other epidemics, but it is far more deadly. For more information, see the World Health Organization (WHO) website http://www.who.int/gho/tb/en/..\n",
+    "\n",
+    "Taking into account the population and the number of deaths from tuberculosis without HIV intervention in some countries during one year, the following questions will be answered: \n",
+    "\n",
+    "- What is the total, maximum, minimum and average number of deaths in that year?\n",
+    "- Which countries have the most and the least deaths?\n",
+    "- What is the death rate (deaths per 100,000 inhabitants) for each country?\n",
+    "- Which countries have the lowest and highest death rate?\n",
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The data\n",
+    "\n",
+    "The data consists of total population and total number of deaths due to TB (excluding HIV) in 2013 in each of the BRICS (Brazil, Russia, India, China and South Africa) and PA (Pacific Alliance: Mexico, Colombia, Peru and Chile) countries of the world. \n",
+    "\n",
+    "The data was taken in July 2015 from <http://apps.who.int/gho/data/node.main.POP107?lang=en> (population) and <http://apps.who.int/gho/data/node.main.593?lang=en> (deaths). The uncertainty bounds of the number of deaths were ignored.\n",
+    "\n",
+    "The data was collected into two Excel files (One for BRICS and one for PA) which should be in the same folder as this notebook."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The BRICS countries\n",
+    "\n",
+    "Let's see the data of the BRICS countries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Country</th>\n",
+       "      <th>Population (1000s)</th>\n",
+       "      <th>TB deaths</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Brazil</td>\n",
+       "      <td>200362</td>\n",
+       "      <td>4400</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Russian Federation</td>\n",
+       "      <td>142834</td>\n",
+       "      <td>17000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>India</td>\n",
+       "      <td>1252140</td>\n",
+       "      <td>240000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>China</td>\n",
+       "      <td>1393337</td>\n",
+       "      <td>41000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>South Africa</td>\n",
+       "      <td>52776</td>\n",
+       "      <td>25000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              Country  Population (1000s)  TB deaths\n",
+       "0              Brazil              200362       4400\n",
+       "1  Russian Federation              142834      17000\n",
+       "2               India             1252140     240000\n",
+       "3               China             1393337      41000\n",
+       "4        South Africa               52776      25000"
+      ]
+     },
+     "execution_count": 52,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import warnings\n",
+    "warnings.simplefilter('ignore', FutureWarning)\n",
+    "\n",
+    "from pandas import *\n",
+    "data = read_excel('WHO POP TB brics.xls')\n",
+    "data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The range of the problem\n",
+    "\n",
+    "The column of interest is the last one."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "tbColumn = data['TB deaths']"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The total number of deaths in 2013 for BRICS countries is:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "327400"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tbColumn.sum()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The largest and smallest number of deaths in a single country are:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "240000"
+      ]
+     },
+     "execution_count": 55,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tbColumn.max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4400"
+      ]
+     },
+     "execution_count": 56,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tbColumn.min()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "From 4400 to almost a quarter of a million deaths is a huge range. The average number of deaths, over all countries in the data, can give a better idea of the seriousness of the problem in each country.\n",
+    "The average can be computed as the mean or the median. Given the wide range of deaths, the median is probably a more sensible average measure."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "65480.0"
+      ]
+     },
+     "execution_count": 57,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tbColumn.mean()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "25000.0"
+      ]
+     },
+     "execution_count": 58,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tbColumn.median()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The median is far lower than the mean. This indicates that some of the BRICS countries had a very high number of TB deaths in 2013, pushing the value of the mean up."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The most affected\n",
+    "\n",
+    "To see the most affected countries, the table is sorted in ascending order by the last column, which puts those countries in the last rows."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Country</th>\n",
+       "      <th>Population (1000s)</th>\n",
+       "      <th>TB deaths</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Brazil</td>\n",
+       "      <td>200362</td>\n",
+       "      <td>4400</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Russian Federation</td>\n",
+       "      <td>142834</td>\n",
+       "      <td>17000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>South Africa</td>\n",
+       "      <td>52776</td>\n",
+       "      <td>25000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>China</td>\n",
+       "      <td>1393337</td>\n",
+       "      <td>41000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>India</td>\n",
+       "      <td>1252140</td>\n",
+       "      <td>240000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              Country  Population (1000s)  TB deaths\n",
+       "0              Brazil              200362       4400\n",
+       "1  Russian Federation              142834      17000\n",
+       "4        South Africa               52776      25000\n",
+       "3               China             1393337      41000\n",
+       "2               India             1252140     240000"
+      ]
+     },
+     "execution_count": 59,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.sort('TB deaths')"
+   ]
+  },
+ 
+   ],
+   "source": [
+    "data.sort('TB deaths (per 100,000)')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Conclusions\n",
+    "\n",
+    "The BRICS countries had almost than 328 thousand deaths due to TB in 2013. The median shows that half of these coutries had fewer than 25,000 deaths. The much higher mean (over 65,480) indicates that some countries had a very high number. The least affected country was Brazil, with 4400 deaths, and the most affected was India with 240 thousand deaths in a single year. However, taking the population size into account, the most affected was South Africa with over 47 deaths per 100,000 inhabitants.\n",
+    "\n",
+    "On the other hand, the PA countries had almost than 5,490 deaths due to TB in 2013. The median shows that half of these coutries had fewer than 1,485 deaths. The lower mean (over 1,372) indicates that some countries had a low number. The least affected country was Chile, with 220 deaths, and the most affected was Peu with 2300 deaths in a single year. Now, taking the population size into account, the most affected was Peru over 7 deaths per 100,000 inhabitants having a particular dramatically situation against the other AP  countries.\n",
+    "\n",
+    "Looking at the numbers we can see a wide gap between average and median for the BRICS countries, unlike the AP countries, so we conclude that the health problems of the PA countries are more homogeneous than for the BRICS countries. That could be because they are geographically close to each other and share the same language and similar culture.\n",
+    "\n",
+    "One should not forget that most values are estimates. Nevertheless, they convey the message that TB is still a major cause of fatalities, than there is not a correlation between deaths and size of population, and that there is a huge disparity between countries, with several ones being highly affected."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.4.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
